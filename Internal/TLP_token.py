@@ -23,4 +23,4 @@ class TokenType(Enum):
 class Token:
     type: TokenType
     literal: str
-    
+
