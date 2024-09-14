@@ -19,8 +19,22 @@ class TokenType(Enum):
     FUNCTION = "FUNCTION"
     LET = "LET"
 
+
 @dataclass
 class Token:
     type: TokenType
     literal: str
 
+
+# Dictionary to store the keywords
+keywords = {
+    "fn": TokenType.FUNCTION,
+    "let": TokenType.LET,
+}
+
+def lookup_ident(ident: str) -> TokenType:
+    """
+    If the identifier is found in the dictionary, returns the corresponding token type.
+    If not, returns INDENT as the default token type.
+    """
+    return keywords.get(ident, TokenType.IDENT)
