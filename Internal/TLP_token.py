@@ -4,20 +4,37 @@ from dataclasses import dataclass
 
 
 class TokenType(Enum):
-    ASSIGN = "ASSIGN"
-    SEMICOLON = "SEMICOLON"
-    LPAREN = "LPAREN"
-    RPAREN = "RPAREN"
-    COMMA = "COMMA"
-    PLUS = "PLUS"
-    LBRACE = "LBRACE"
-    RBRACE = "RBRACE"
-    EOF = "EOF"
+    ASSIGN = "="
+    PLUS = "+"
+    MINUS = "-"
+    BANG = "!"
+    ASTERISK = "*"
+    SLASH = "/"
+    EQ = "=="
+    NOT_EQ = "!="
+
+    SEMICOLON = ";"
+    LPAREN = "{"
+    RPAREN = "}"
+    COMMA = ","
+    LBRACE = "("
+    RBRACE = ")"
+    LT = "<"
+    GT = ">"
+
+    EOF = "\0"
+
     ILLEGAL = "ILLEGAL"
-    IDENT = "IDENT"
     INT = "INT"
-    FUNCTION = "FUNCTION"
-    LET = "LET"
+
+    IDENT = "IDENT"
+    FUNCTION = "fn"
+    LET = "let"
+    IF = "if"
+    TRUE = "true"
+    FALSE = "false"
+    ELSE = "else"
+    RETURN = "return"
 
 
 @dataclass
@@ -30,7 +47,14 @@ class Token:
 keywords = {
     "fn": TokenType.FUNCTION,
     "let": TokenType.LET,
+    "if": TokenType.IF,
+    "return": TokenType.RETURN,
+    "true": TokenType.TRUE,
+    "false": TokenType.FALSE,
+    "else": TokenType.ELSE
+
 }
+
 
 def lookup_ident(ident: str) -> TokenType:
     """

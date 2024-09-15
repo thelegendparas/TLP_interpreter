@@ -32,12 +32,17 @@ class Lexer:
             literal = self.read_identifier()
             tok_type = lookup_ident(literal)
             return Token(type=tok_type, literal=literal)
-        elif self.isDigit(self.ch): # checks if current character is a digit
+        elif self.isDigit(self.ch):  # checks if current character is a digit
             tok_literal = self.readNumber()
-            return Token(type=TokenType.INT, literal= tok_literal)
+            return Token(type=TokenType.INT, literal=tok_literal)
 
         if self.ch == '=':
-            tok = new_token(TokenType.ASSIGN, self.ch)
+            if self.peek_char() == "=":
+                ch = self.ch
+                self.read_char()
+                tok = Token(type=TokenType.EQ, literal=ch + self.ch)
+            else:
+                tok = new_token(TokenType.ASSIGN, self.ch)
         elif self.ch == ';':
             tok = new_token(TokenType.SEMICOLON, self.ch)
         elif self.ch == '(':
@@ -48,10 +53,27 @@ class Lexer:
             tok = new_token(TokenType.COMMA, self.ch)
         elif self.ch == '+':
             tok = new_token(TokenType.PLUS, self.ch)
+        elif self.ch == "-":
+            tok = new_token(TokenType.MINUS, self.ch)
         elif self.ch == '{':
             tok = new_token(TokenType.LBRACE, self.ch)
         elif self.ch == '}':
             tok = new_token(TokenType.RBRACE, self.ch)
+        elif self.ch == "!":
+            if self.peek_char() == "=":
+                ch = self.ch
+                self.read_char()
+                tok = Token(type=TokenType.NOT_EQ, literal=ch + self.ch)
+            else:
+                tok = new_token(TokenType.BANG, self.ch)
+        elif self.ch == "/":
+            tok = new_token(TokenType.SLASH, self.ch)
+        elif self.ch == "*":
+            tok = new_token(TokenType.ASTERISK, self.ch)
+        elif self.ch == "<":
+            tok = new_token(TokenType.LT, self.ch)
+        elif self.ch == ">":
+            tok = new_token(TokenType.GT, self.ch)
         elif self.ch == '\0':  # End of input
             tok = Token(type=TokenType.EOF, literal="")
         else:
@@ -72,7 +94,7 @@ class Lexer:
 
     def readNumber(self):
         position = self.position
-        while self.isDigit(self.ch): # Continue reading while it's a number
+        while self.isDigit(self.ch):  # Continue reading while it's a number
             self.read_char()
         return self.input[position:self.position]
 
@@ -80,6 +102,12 @@ class Lexer:
         # Skips whitespaces like ' '  ,  '\t'  , '\n' ,  '\r'
         while self.ch in [' ', '\t', '\n', '\r']:
             self.read_char()
+
+    def peek_char(self) -> str:
+        if self.read_position >= len(self.input):
+            return '\0'  # Null character to indicate end of target
+        else:
+            return self.input[self.read_position]
 
     @staticmethod
     def is_letter(ch):
