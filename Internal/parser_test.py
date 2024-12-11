@@ -1,7 +1,7 @@
 import unittest
 from TLP_lexer import Lexer
 from TLP_parser import Parser
-from TLP_AST import LetStatement,ReturnStatement , Statement, Program
+from TLP_AST import LetStatement, ReturnStatement, Statement, Program, InfixExpression, ExpressionStatement
 
 
 class TestParser(unittest.TestCase):
@@ -63,9 +63,48 @@ class TestParser(unittest.TestCase):
             if stmt.token_literal() != "return":
                 self.fail(f"return_stmt.token_literal not 'return', got {stmt.token_literal()}")
 
+    def test_parsing_infix_expressions(self):
+        infix_tests = [
+            {"input": "5 + 5;", "leftValue": 5, "operator": "+", "rightValue": 5},
+            {"input": "5 - 5;", "leftValue": 5, "operator": "-", "rightValue": 5},
+            {"input": "5 * 5;", "leftValue": 5, "operator": "*", "rightValue": 5},
+            {"input": "5 / 5;", "leftValue": 5, "operator": "/", "rightValue": 5},
+            {"input": "5 > 5;", "leftValue": 5, "operator": ">", "rightValue": 5},
+            {"input": "5 < 5;", "leftValue": 5, "operator": "<", "rightValue": 5},
+            {"input": "5 == 5;", "leftValue": 5, "operator": "==", "rightValue": 5},
+            {"input": "5 != 5;", "leftValue": 5, "operator": "!=", "rightValue": 5},
+        ]
+
+        for tt in infix_tests:
+            lexer = Lexer(tt["input"]) # Create the lexer with input string
+            parser = Parser(lexer) # Initialise parser with lexer
+            program = parser.parse_program() # Parse the program
+            self.check_parser_errors(parser) # Check for any parser errors
+
+            # Check if program contains exactly one statement
+            self.assertEqual(len(program.statements), 1, f"program.statements does not contain 1 statement. got={len(program.statements)}")
+
+            stmt = program.statements[0]
+
+            # Check if the statement is an ExpressionStatement
+            self.assertIsInstance(stmt, ExpressionStatement, f"program.statements[0] is not ExpressionStatement. got={type(stmt)}")
+
+            # Check if the expression is an infix statement
+            exp = stmt.expression
+            self.assertIsInstance(exp, InfixExpression, f"stmt.expression is not InfixExpression. got={type(stmt)}")
+
+            # Check if the left side of the expression is an integer literal and matches the expected value
+            self.validate_integer_literal(exp.left, tt["leftValue"])
+
+            # Check if the operator is correct
+            self.assertEqual(exp.operator, tt["operator"], f"exp.operator is not '{tt['operator']}'. got={exp.operator}")
+
+            # Check if the right side of the expression is an integer literal and matches the expected value
+            self.validate_integer_literal(exp.right, tt["rightValue"])
+
     def check_parser_errors(self, parser):
         """Check for errors in the parser and fail the test if any are found."""
-        errors = parser.errors
+        errors = parser.get_errors() if callable(parser.get_errors) else parser.get_errors
         if len(errors) == 0:
             return  # no errors
 
@@ -89,6 +128,10 @@ class TestParser(unittest.TestCase):
 
         return True
 
+    def validate_integer_literal(self, exp, expected_value):
+        # This function checks if the expression is an integer literal and matches the expected value
+        self.assertEqual(exp.value, expected_value, f"exp.value is not {expected_value}. got={exp.value}")
+        self.assertEqual(exp.token_literal(), str(expected_value), f"exp.token_literal is not {expected_value}. got={exp.token_literal()}")
 
 
 if __name__ == '__main__':

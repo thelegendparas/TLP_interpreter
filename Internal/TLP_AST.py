@@ -16,6 +16,7 @@ class Statement(Node, ABC):
     @abstractmethod
     def statement_node(self):
         pass
+
     @abstractmethod
     def __str__(self) -> str:
         pass
@@ -122,3 +123,75 @@ class ExpressionStatement(Statement):
         if self.expression is not None:
             return str(self.expression)
         return ""
+
+
+class InfixExpression(Expression):
+    """
+    Represents an infix expression in the AST.
+    Attributes:
+        token: The infix token (eg , '+', '-', '*', etc.).
+        left: The expression to the left of the operator.
+        operator: The operator (eg , '+', '-', '*', etc.).
+        right: The expression to the right of the operator
+    """
+
+    def __init__(self, token, left, operator, right=None):
+        self.token = token
+        self.left = left
+        self.operator = operator
+        self.right = right
+
+    def expression_node(self):
+        pass
+
+    def token_literal(self) -> str:
+        return self.token.literal
+
+    def __str__(self):
+        """Return a string representation of the infix expression"""
+        out = StringIO()
+        out.write(f"({str(self.left)} {self.operator} {str(self.right)})")
+        return out.getvalue()
+
+
+class PrefixExpression(Expression):
+    """
+    Represents a prefix expression in the AST.
+
+    Attributes:
+        token: The prefix token (eg , '!', '-').
+        operator: The operator (eg , '!', '-').
+        right: The expression to the right of the operator.
+    """
+
+    def __init__(self, token, operator):
+        self.token = token
+        self.operator = operator
+        self.right = None
+
+    def expression_node(self):
+        pass
+
+    def token_literal(self) -> str:
+        return self.token.literal  # Assuming the token has a "literal" attribute
+
+    def __str__(self) -> str:
+        """Return a string representation of the prefix expression"""
+        out = StringIO()
+        out.write(f"({self.operator}{str(self.right)})")
+        return out.getvalue()
+
+class IntegerLiteral(Expression):
+
+    def __init__(self, token, value):
+        self.token = token
+        self.value = value
+
+    def expression_node(self):
+        pass
+
+    def token_literal(self) -> str:
+        return self.token.literal
+
+    def __str__(self):
+        return str(self.value)
